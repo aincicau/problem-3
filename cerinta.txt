@@ -1,0 +1,12 @@
+vehicle 
+
+id
+name
+brand
+typeOfVehicle
+canDrive
+
+Post
+Get
+canDrive based on id
+delete vehicle
