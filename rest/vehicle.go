@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"pb3/db"
 	"pb3/entity"
+	"strconv"
 
 	"github.com/sirupsen/logrus"
 )
@@ -24,7 +25,7 @@ func PostVehicle(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db.GetDB().Create(&vehicle)
+	db.GetDB().Save(&vehicle)
 	rw.Write(bodyBytes)
 }
 
@@ -52,6 +53,23 @@ func hasError(rw http.ResponseWriter, err error, message string) bool {
 		return true
 	}
 	return false
+}
+
+func GetCanDrive(rw http.ResponseWriter, r *http.Request) {
+	value := r.URL.Query().Get("id")
+	var vehicle entity.Vehicle
+	result := db.GetDB().Find(&vehicle, "id=?", value)
+	if result.RecordNotFound() {
+		http.Error(rw, "No Record Found", http.StatusInternalServerError)
+		return
+	}
+
+	if result.Error != nil {
+		http.Error(rw, result.Error.Error(), http.StatusInternalServerError)
+	}
+
+	canDriveValue := strconv.FormatBool(vehicle.CanDrive)
+	rw.Write([]byte(canDriveValue))
 }
 
 func DeleteVehicle(rw http.ResponseWriter, r *http.Request) {
